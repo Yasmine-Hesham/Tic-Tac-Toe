@@ -7,12 +7,21 @@
 #include<iostream>
 using namespace std;
 #define Stack_entry Move 
-//define n=3
+#define maxstack 100
+#define n 3
+int p;
+int draw=0;
+
 class Move {//move de el move rl ha3melha ta2reebn?
 public:
     int row;
     int col;
     int pos;
+	Move(){//default constructor
+	row=0;
+	col=0;
+	pos=0;
+	}
 };
 struct node{
     char val;
@@ -164,15 +173,15 @@ Move getposition(Move new_move){
     new_move.col = (new_move.pos-1)%n;
     return new_move;}
 int input(struct node* arr[], int pl){
-    move step;
+    Move step;
     cout<<("Enter a number to place your symbol there: ");
     cin>>step.pos;
-    step=getpostion(step)
+    step=getposition(step)
     struct node *ptr; 
-    if (!is_ok(arr[], step))
+    if (!is_ok(arr, step))
     {
         cout<<("Invalid position\n");
-        input(arr[],pl);
+        input(arr,pl);
     }   
     ptr =arr[step.row];
 	for(step.pos=0; step.pos!=step.col; step.pos++) {
@@ -297,7 +306,7 @@ int isGameOver(struct node *arr[], int n){
 bool done()const
 /**Judging whether the game is over**/
 {
-    return (moves_done == 9 || isGameOver(struct node *arr[], int n));//moves_done = draw
+    return (draw == 9 || isGameOver(struct node *arr[], int n));//moves_done = draw
 }
 //indicates which player wins
 void playerWins(char c){
@@ -346,10 +355,10 @@ int Board::evaluate()const
 {
     int winner = the_winner();
     if (winner == 1)
-        return 10 - moves_done;//If the winner is 1, the return value is positive. The larger the number, the better for player 1. // I don't get why 10?
+        return 10 - draw;//If the winner is 1, the return value is positive. The larger the number, the better for player 1. // I don't get why 10?
 
     else if (winner == 2)
-        return moves_done - 10;//Winner is 2, then the return value is negative. The smaller the number, the better for player 2.
+        return draw - 10;//Winner is 2, then the return value is negative. The smaller the number, the better for player 2.
     else
         return 0;//It ends in a draw
 }
@@ -359,17 +368,17 @@ int evaluate()const
 {
     int winner = the_winner();// int winner =P
     if (winner == 1)
-        return 10 - moves_done;//If the winner is 1, the return value is positive. The larger the number, the better for player 1. // I don't get why 10?
+        return 10 - draw;//If the winner is 1, the return value is positive. The larger the number, the better for player 1. // I don't get why 10?
 
     else if (winner == 2)// winner==2 && ch=1
-        return moves_done - 10;//Winner is 2, then the return value is negative. The smaller the number, the better for player 2.
+        return draw - 10;//Winner is 2, then the return value is negative. The smaller the number, the better for player 2.
     else
         return 0;//It ends in a draw
 }
 int Board::worst_case()const //no idea
 /**Return to the worst case for easy comparison in recursion**/
 {
-    if (moves_done % 2)	//For Player 2
+    if (draw % 2)	//For Player 2
         return 10;
     else return -10;	//For Player 1
 }
@@ -377,7 +386,7 @@ int Board::worst_case()const //no idea
 bool Board::better(int value, int old_value)const
 /**Compare the two values which is the best**/
 {
-    if (moves_done % 2)	//For Player 2
+    if (draw % 2)	//For Player 2
         return value < old_value;
     else				//For Player 1
         return value > old_value;
