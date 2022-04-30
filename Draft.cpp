@@ -17,6 +17,15 @@ public:
     int row;
     int col;
     int pos;
+     Move(){//default constructor
+    row=-1;
+    col=-1;
+    pos=0;}
+    Move(int p){ //parameterized constructor
+        pos=p;
+        row=(p-1)/n;
+        col=(p-1)%n;
+    }
 };
 struct node {
     char val;
@@ -353,6 +362,74 @@ void playerWins(char c) {
         P = 2;
     }
 }
+void Board ::perform_move (Move step){
+    struct node *ptr;
+    ptr =arr[step.row];
+    for(step.pos=0; step.pos!=step.col; step.pos++) {
+        ptr = ptr->next;
+        }
+    if(pl % 2 == 1 ) {//*player1
+      ptr->val = 'X';
+      pl++;
+     }
+    else {
+      ptr->val = 'O';//*player2
+      pl++;
+    }
+    //increments the draw counter
+    moves_done++;//*3shan awel ema draw de tewsal le n*n byb2a draw
+    return;
+}
+int Board::worst_case() 
+/*Return the worst case for easy comparison in recursion*/
+{
+    if (moves_done % 2)    //For Player 1
+        return 10;
+    else return -10;    //For Player 2
+}
+bool Board::better(int value, int old_value)
+/*Compare the two values which is best*/
+{
+    if (moves_done % 2)    //For Player 1
+        return value < old_value;
+    else                //For Player 2
+        return value > old_value;
+}
+void player1info (){
+    system("cls");
+    cout<<"Player 1 Enter your name: \n";
+    cin>>player1;//*string
+    cout<<player1<< " your symbol is X\n\n\n";
+}
+int playing(int intel, int mode)
+{
+    Board game;
+    Move comp_move;
+    do{ // stay in loop untill all blocks are filled
+         system("cls");
+        game.printBoard();
+        if(game.pl % 2 != 0){//pl fel awal b 1 f awel mara hayb2a b 1 w hayfdal ema yeb2a odd yeb2a player1
+            cout<<"\nYour move "<<player1<<"\n";
+            game.perform_move(game.input());
+            system("cls");
+        }
+        else if(mode==1) {
+            cout<<"\nYour move "<<player2<<"\n";
+            game.perform_move(game.input());
+            system("cls");
+        }
+        else {
+            look_ahead(game, intel,comp_move);
+            game.perform_move(comp_move);
+            system("cls");
+            }
+        }while(!game.done());
+        //checks for winner
+    system("cls");
+    game.printBoard();//??
+    return game.Winner;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
     int main()
     {
