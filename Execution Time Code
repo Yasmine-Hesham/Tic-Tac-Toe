@@ -1,0 +1,585 @@
+//Yasyousa
+#include<stdio.h>
+#include<stdlib.h>
+#include<conio.h>
+#include<windows.h>
+#include<direct.h>
+#include<io.h>
+#include<iostream>
+#include <ctime>
+using namespace std;
+#define maxstack 100
+#define success true
+#define underflow false
+#define overflow false
+const int n=3;
+char player1[25], player2[25];
+struct node{
+    char val;
+    struct node *next;
+    struct node *down;  //*like a 2 dimention linked list
+};
+class Move {//move de el move rl ha3melha ta2reebn?
+public:
+    int row;
+    int col;
+    int pos;
+    Move(){//default constructor
+	row=-1;
+	col=-1;
+	pos=0;}
+    Move(int p){
+        pos=p;
+        row=(p-1)/n;
+        col=(p-1)%n;
+    }
+};
+class Stack {
+public:
+    Stack();
+    bool empty()const; //this function returns if the string is empty
+    bool pop();
+    bool top(Move& item); // int& item
+    bool push(const Move& item);// const int& item
+private:
+    int count;
+    Move entry[maxstack]; //I guess, it's an array named entry of type Move and size 100// int
+};
+Stack::Stack()
+{
+    count = 0;//*count de hya el top bs bade2 men zero
+}
+bool Stack::push(const Move& item)//??
+{
+    bool outcome = success;
+    if (count >= maxstack)
+        return overflow;
+    else
+        entry[count++] = item; //if there is still space then push the "item" into element no. "count++" in "entry"
+    return outcome;
+}
+bool Stack::pop()
+{
+    bool outcome = success;
+    if (count == 0)
+        outcome = underflow;
+    else --count;
+    return outcome;
+}
+bool Stack::top(Move& item)
+{
+    bool outcome = success;
+    if (count == 0)
+        return underflow;
+    else
+        item = entry[count - 1]; //count -1 as the 1st element [0] is of count 1
+    return outcome;
+}
+bool Stack::empty()const
+{ //it checks if the stack is empty or not
+    bool outcome = true;
+    if (count > 0) //if count >0 then it's not empty
+        outcome = false;
+    return outcome;
+}
+class Board{
+public:
+    Board();
+    void printBoard();
+    Move getposition(Move new_move);
+    Move input();
+    void perform_move(Move step);
+    int isGameOver();
+    bool done();
+    void playerWins(char c);
+    int legal_moves(Stack& moves);
+    bool is_ok(Move step);
+    int evaluate();
+    int worst_case();
+    bool better(int value, int old_value);
+    int moves_done;
+    int Winner;
+    int pl;
+    struct node* arr[n];
+};
+Board::Board() {
+    moves_done = 0;
+    pl=1;
+    Winner=0;
+    int i, j;
+    struct node *newNode, *ptr;//??
+    for(i=0; i<n; i++) {
+        for(j=0; j<n; j++) {
+            newNode = new node();
+            newNode->next = NULL;//*kda ana 3amlt node gdeeda w khaltha fadya w mesh betshawer 3ala 7aga y3ni ll men node wa7da
+            newNode->down = NULL;
+            newNode->val = ' ';
+            if(j==0) {//*awel node f kol row
+                arr[i] = newNode;//*bakhali awel element hya el ll el fadya kda ana khadt el kan newnode byshawer 3aleih w 2a2dar akhali nn teshwar 3ala 7aga tany
+                ptr = arr[i];//*bakhalai el pointer yeshawer 3aleiha
+            }
+            else{//*ana kda akeni ba3mel 2d array bs awel coloumn array well tale3 menha ll 3shan akmel ba2eit el array
+                ptr->next = newNode;
+                ptr = ptr->next;
+            }
+        }
+    }
+    //down pointer
+    for(j=0; j<n-1; j++) {//*j-1 3shan akher row mafeesh 7aga ta7to awaslo biha
+        ptr = arr[j];//*kda ana ba link kol el element el fel array b b3d
+        newNode = arr[j+1];
+        for(i=0; i<n; i++) {
+            ptr->down = newNode;
+            ptr = ptr->next;
+            newNode = newNode->next;
+        }
+    }
+}
+//prints the board
+void Board::printBoard() {//**ba3dein
+    int i, j, k;
+    struct node *ptr;
+    for(k=0;k<n;k++){
+   		cout<<" ---------------";
+    }
+    cout<<"\n";
+    for(i=0; i<n; i++) {
+
+   		cout<<"|";
+   		for(k=0;k<n;k++){
+   			cout<<"               |";
+   		}
+   		cout<<"\n";
+   		cout<<"|";
+   		for(k=0;k<n;k++){
+   			cout<<"               |";
+   		}
+   		cout<<"\n";
+
+        ptr = arr[i];
+        for(j=1; j<=n; j++) {
+            if(ptr->val == ' '){
+                cout<<"|\t"<<i*n+j<<"\t";
+            }
+            else{
+            	if(ptr->val=='X'){
+            		cout<<"|";
+               		cout<<"\t"<<ptr->val<<"\t";
+           		}
+           		else{
+            		cout<<"|";
+           			cout<<"\t"<<ptr->val<<"\t";
+           		}
+            }
+            ptr=ptr->next;
+        }
+        cout<<"|";
+        cout<<"\n";
+
+
+        cout<<"|";
+   		for(k=0;k<n;k++){
+   			cout<<"               |";
+   		}
+   		cout<<"\n";
+   		cout<<"|";
+   		for(k=0;k<n;k++){
+   			cout<<"               |";
+   		}
+   		cout<<"\n";
+        for(k=0;k<n;k++){
+   			cout<<" ---------------";
+    	}
+    	cout<<"\n";
+
+
+    }
+}
+int validinput(int choice)
+   { while (cin.fail())  //while the data type declared doesn't match data type entered
+	{
+	cout << "Invalid Choice.  Select again: ";  //error msg
+			cin.clear();   //clear istream
+			cin.ignore();  //repair istream
+			cin >> choice; //get user input again
+	}
+    return choice;}
+Move Board::getposition(Move new_move){
+    new_move.row = (new_move.pos-1)/n;
+    new_move.col = (new_move.pos-1)%n;
+    return new_move;
+}
+
+Move Board::input(){
+    Move step;
+    cout<<("Enter a number to place your symbol there: ");
+    cin>>step.pos;
+    step.pos=validinput(step.pos);
+    step= getposition(step);
+    if (!is_ok(step))
+    {
+        cout<<("Invalid position\n");
+        step=input();
+    }
+    return step;
+}
+void Board ::perform_move (Move step){
+    struct node *ptr;
+    ptr =arr[step.row];
+	for(step.pos=0; step.pos!=step.col; step.pos++) {
+	    ptr = ptr->next;
+	    }
+	if(pl % 2 == 1 ) {//*player1
+      ptr->val = 'X';
+      pl++;
+     }
+	else {
+      ptr->val = 'O';//*player2
+      pl++;
+	}
+	//increments the draw counter
+	moves_done++;//*3shan awel ema draw de tewsal le n*n byb2a draw
+    return;
+}
+int Board::isGameOver(){
+	int gameOver,i,j;
+    struct node *ptr;
+    char values[n];//*array to
+    //Horizontal Check
+    for (i = 0; i < n; i++)
+    {
+    	gameOver = 1;
+    	ptr = arr[i];
+    	for(j=0; j<n; j++) {//* akhadt el values beta3t awel row kolo w 7atetha f array lwa7do
+    		values[j] = ptr->val;
+    		ptr= ptr->next;
+	   	}
+        //checing if row is equal
+    	for(j=0; j<n-1; j++){
+    		if(values[j]==' ' || values[j+1] == ' '){//*lw fi ay wa7da fadya yeb2a maksebesh
+    			gameOver = 0;
+    			break;
+    		}
+    		else if(values[j] != values[j+1]){//*aw lw fi ay wa7da mesh zy el b3dha matnfa3sh
+    			gameOver = 0;
+    			break;
+    		}
+    	}
+    	if(gameOver == 1){
+    		playerWins(values[j]);//*bab3at X aw O 7asab meen el keseb
+    		return gameOver;
+		}
+    }
+    //Vertical Check
+    for(i=0; i<n; i++){
+        ptr = arr[0];
+        for(j=0; j<i; j++) {
+            ptr = ptr->next;
+        }
+        gameOver = 1;
+        for(j=0; j<n; j++){
+            values[j] = ptr->val;//*hya hya bs akhat coloumn
+            ptr = ptr->down;
+        }
+        //checking if column is equal
+        for(j=0; j<n-1; j++) {
+            if(values[j]==' ' || values[j+1] == ' '){
+    			gameOver = 0;
+    			break;
+    		}
+            if(values[j] != values[j+1]) {
+                gameOver = 0;
+                break;
+            }
+        }
+        if(gameOver == 1){
+        	playerWins(values[j]);
+    		return gameOver;
+		}
+    }
+    //leading Diagonal
+    for(i=0; i<n; i++){
+        gameOver = 1;
+        ptr = arr[i];
+        for(j=0; j<i; j++){//*rakam el row hwa rakan el element el hatetakhed fel diagonal
+            ptr = ptr->next;
+        }
+        values[i] = ptr->val;//*kda value fiha el diagonal
+        //checking if leading diagonal is equal
+        for(j=0; j<n-1; j++) {
+            if(values[j]==' ' || values[j+1] == ' '){
+    			gameOver = 0;
+    			break;
+    		}
+            if(values[j] != values[j+1]) {
+                gameOver = 0;
+                break;
+            }
+        }
+        if(gameOver == 1){
+        	playerWins(values[j]);
+    		return gameOver;
+		}
+    }
+    //other Diagonal
+    for(i=n-1; i>=0; i--){//bada2t men akher row
+        gameOver = 1;
+        ptr = arr[n-i-1];
+        for(j=0; j<i; j++){
+            ptr = ptr->next;
+        }
+        values[n-i-1] = ptr->val;
+        //checking if non-leading diagonal is equal
+        for(j=0; j<n-1; j++) {
+            if(values[j]==' ' || values[j+1] == ' '){
+    			gameOver = 0;
+    			break;
+    		}
+            if(values[j] != values[j+1]) {
+                gameOver = 0;
+                break;
+            }
+        }
+        if(gameOver == 1){
+        	playerWins(values[j]);
+    		return gameOver;
+		}
+    }
+    return gameOver;
+}
+bool Board::done()
+//Judging whether the game is over/
+{
+    if(isGameOver())
+    return 1;
+    return (moves_done == n*n);
+}
+void Board:: playerWins(char c){
+	if(c=='X'){
+		Winner=1;
+	}
+	else{
+		Winner=2;
+	}
+}
+int Board::legal_moves(Stack& moves) //stack named moves .. by refrence
+//Store all feasible steps in the incoming stack/
+{
+    int count = 0;
+    while (!moves.empty()) //while the stack "moves" is not empty
+        moves.pop(); //empty it first
+    for (int i = 1; i < n*n+1; i++)
+        {
+            Move can_play;
+            can_play.pos=i;
+            can_play = getposition(can_play);
+            if(is_ok(can_play))//??
+               { moves.push(can_play); //and it's pushed in the stack moves
+                count++;}
+        }
+    return count;
+}
+bool Board::is_ok(Move step)
+//Judging whether this step is feasible/
+{
+    if(step.pos<1 || step.pos>n*n){
+        return false;}
+    struct node *ptr;
+    ptr =arr[step.row];
+	for(step.pos=0; step.pos!=step.col; step.pos++) {
+	    ptr = ptr->next;
+	    }
+	if(ptr->val != ' ') {
+	    return false;}
+    else return true;
+}
+
+int Board:: evaluate()
+/**Return to a number, which reflects the winning or losing and how many steps have been taken.
+   For calculating the final result of each feasible step in the following recursive function**/
+{
+    if (Winner == 1)
+        return 10 - moves_done;//If the winner is 1, the return value is positive. The larger the number, the better for player 1. // I don't get why 10?
+    else if (Winner == 2)
+        return moves_done - 10;//Winner is 2, then the return value is negative. The smaller the number, the better for player 2.
+    else
+        return 0;//It ends in a draw
+}
+int Board::worst_case() //no idea
+//Return to the worst case for easy comparison in recursion/
+{
+    if (moves_done % 2)	//For Player 2
+        return 10;
+    else return -10;	//For Player 1
+}
+bool Board::better(int value, int old_value)
+//Compare the two values which is the best/
+{
+    if (moves_done % 2)	//For Player 2
+        return value < old_value;
+    else				//For Player 1
+        return value > old_value;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////
+void assign(Board& new_game, Board game) {
+	int i,j;
+	struct node *ptr1, *ptr2;
+	for(i=0; i<n; i++) {
+		ptr1 = game.arr[i];// ba3adi el wa7da wa7da fel array el hwa el coloumn
+        ptr2 = new_game.arr[i];
+		for(j=0; j<n; j++) {//*ba3adi 3ala wa7da wa7da fel ll el hwa el row
+			ptr2->val =ptr1->val;
+			ptr1 = ptr1->next;
+            ptr2 = ptr2->next;
+		}
+	}
+    new_game.Winner=game.Winner;
+    new_game.pl= game.pl;
+    new_game.moves_done= game.moves_done;
+}
+/*void assign(Board& new_game,Board game)
+    {
+        for(int i=1; i<=n*n;i++){
+            Move played(i);
+            if(!game.is_ok(played)){
+                new_game.perform_move(played);
+            }
+        }
+    }*/
+
+int look_ahead(Board& game, int depth, Move& recommended)
+{
+    if (game.done() || depth == 0) //if the game is over or depth-god knows what that is- =0 .. depth will be the iq of the computer but it must be larger than 1 , so I don't get why would it be 0!
+        return game.evaluate();
+    else
+    {
+        Stack moves;
+        game.legal_moves(moves);
+        int value;
+        int best_value = game.worst_case();
+        while (!moves.empty()) //while the stack is not empty
+        {
+            Move try_it, reply; //declares 2 objects of the class Move
+            moves.top(try_it); //peak the last move added
+            Board new_game;
+            assign(new_game, game);  //a new stack to put "game" in
+            new_game.perform_move(try_it); //perform "X" or "O" or blank
+            value = look_ahead(new_game, depth - 1, reply); //recursive
+            if (game.better(value, best_value)) //if value is better than best value
+            {
+                best_value = value; //make value the new bet value
+                recommended = try_it; //add the "try it " move in the object "recommended" of type move
+            }
+            moves.pop(); //I think it means "next " Elly b3dooooo
+        }
+        return best_value; //in the end it'll come back with the best decision
+    }
+}
+void player1info (){
+    system("cls");
+    cout<<"Player 1 Enter your name: \n";
+    cin>>player1;//*string
+    cout<<player1<< " your symbol is X\n\n\n";
+}
+int playing(int intel, int mode)
+{
+    Board game;
+    Move comp_move;
+    do{ // stay in loop untill all blocks are filled
+         system("cls");
+        game.printBoard();
+        if(game.pl % 2 != 0){//pl fel awal b 1 f awel mara hayb2a b 1 w hayfdal ema yeb2a odd yeb2a player1
+            cout<<"\nYour move "<<player1<<"\n";
+            game.perform_move(game.input());
+            system("cls");
+        }
+        else if(mode==1) {
+            cout<<"\nYour move "<<player2<<"\n";
+            game.perform_move(game.input());
+            system("cls");
+        }
+        else {
+            look_ahead(game, intel,comp_move);
+            game.perform_move(comp_move);
+            system("cls");
+            }
+        }while(!game.done());
+        //checks for winner
+    system("cls");
+    game.printBoard();
+    return game.Winner;
+}
+int main() {
+    //*Using system(), we can execute any command that can run on terminal if operating system allows.
+            //*For example, we can call system(“dir”) on Windows and system(“ls”) to list contents of a directory.
+    system("cls");//*system() is used to invoke an operating system command from a C/C++ program. clear screen
+    int ch, intel, win; //n is size of matrix //m7tageen n change l varibales names de //d: for draw and it's returned from "input" function
+   clock_t start;
+   clock_t end;
+   double timetaken;
+   start = clock();
+   do{//?? //3 for quit
+        //sets the player win indicator to 0
+        system("cls");
+        //start menu
+        cout<<" ---------------------------------------------------------------------\n";
+        cout<<"|                                                                     |\n";
+        cout<<"|                             TIC TAC TOE                             |\n";
+        cout<<"|                                                                     |\n";
+        cout<<" ---------------------------------------------------------------------\n";
+        cout<<"|                                                                     |\n";
+        cout<<"|                            1. PLAY WITH TWO PLAYERS                 |\n";
+        cout<<"|                            2. PLAY WITH COMPUTER                    |\n";
+        cout<<"|                            3. QUIT                                  |\n";
+        cout<<"|                                                                     |\n";
+        cout<<" ---------------------------------------------------------------------\n";
+        cout<<"|  Select a choice:                                                   |\n";
+        cout<<" ---------------------------------------------------------------------\n";
+        cin>>ch;//* %d specifies signed decimal integer while %i specifies integer.
+        switch(ch){// lw hal3ab hatb2a 1 or 2
+            case 1:
+                player1info();
+                cout<<"Player 2 Enter your name: \n";
+                cin>>player2;
+                cout<<player2<< " your symbol is O\n\n\n";
+                cout<<"Press any key to continue.\n";
+                getch();//*getch() also reads a single character from the keyboard.->conio.h
+                //the entered character is immediately returned without waiting for the enter key.
+                win=playing(0, ch);//??
+                break;
+            case 2:
+                player1info();
+                cout << "Please enter the computer's IQ:" << endl;
+                cin>>intel;
+                intel=validinput(intel);
+                while (intel < 1 || intel>9)
+                {
+                    cout << "IQ should be greater than or equal to 1, less than or equal to 9." << endl;
+                    cin >> intel;
+                }
+                system("cls");
+                win=playing(intel, ch);
+                break;
+            case 3:
+                break;
+            default:
+                cout<<"Enter a valid choice";
+        }
+    }while(!(0<ch<=3));
+    if(win==1){
+        cout<<"\n\t\t"<<player1<<" Wins!!\n";
+    }
+    else if(ch==1 && win==2){
+        cout<<"\n\t\t"<<player2<< " Wins!!\n";
+        }
+    else if (ch==2 && win==2){
+        cout<<"Computer wins"<<endl;
+            }
+    else if(win==0) {
+        cout<<"\n\t\tIt's a Draw!\n\n";
+        }
+    end = clock();
+    timetaken = (end - start) / (double)CLOCKS_PER_SEC;
+    cout << "Elapsed Time: " << fixed << timetaken << "s" << endl;
+    return 0;
+}
