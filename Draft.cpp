@@ -10,7 +10,8 @@ using namespace std;
 #define success true
 #define underflow false
 #define overflow false
-const int n = 3;//board size
+const int n=4; //playing with computer mode won't work properly in this 4x4 board case
+//Increasing size of board will increase execution time as the player has to fill more slots to win
 char player1[25], player2[25];
 class Move {
 public:
@@ -481,11 +482,6 @@ int playing(int intel, int mode)
             game.perform_move(game.input());
             system("cls");
         }
-        else {// perform computer's move
-            look_ahead(game, intel,comp_move);
-            game.perform_move(comp_move);
-            system("cls");
-            }
         }while(!game.done());
     system("cls");
     game.printBoard();
@@ -505,8 +501,7 @@ int playing(int intel, int mode)
         cout<<" ---------------------------------------------------------------------\n";
         cout<<"|                                                                     |\n";
         cout<<"|                            1. PLAY WITH TWO PLAYERS                 |\n";
-        cout<<"|                            2. PLAY WITH COMPUTER                    |\n";
-        cout<<"|                            3. QUIT                                  |\n";
+        cout<<"|                            2. QUIT                    		     |\n";
         cout<<"|                                                                     |\n";
         cout<<" ---------------------------------------------------------------------\n";
         cout<<"|  Select a choice:                                                   |\n";
@@ -523,19 +518,7 @@ int playing(int intel, int mode)
                 //the entered character is immediately returned without waiting for the enter key.
                 win=playing(0, ch); 
                 break;
-            case 2: //with computer
-                player1info();
-                cout << "Please enter the computer's IQ:" << endl;
-                cin>>intel;
-                while (intel < 1 || intel>9) 
-                {
-                    cout << "IQ should be greater than or equal to 1, less than or equal to 9." << endl;
-                    cin >> intel;
-                }
-                system("cls");
-                win=playing(intel, ch);
-                break;
-            case 3: //quit
+            case 2: //quit
                 break;
             default:
                 cout<<"Enter a valid choice";
@@ -547,9 +530,6 @@ int playing(int intel, int mode)
     else if(ch==1 && win==2){ 
         cout<<"\n\t\t"<<player2<< " Wins!!\n";
         }
-    else if (ch==2 && win==2){
-        cout<<"Computer wins"<<endl;
-            }
     else if(win==0) {
         cout<<"\n\t\tIt's a Draw!\n\n";
         }
