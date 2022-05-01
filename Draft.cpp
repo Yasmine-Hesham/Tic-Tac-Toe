@@ -85,11 +85,9 @@ class Board{
 public:
     Board();
     void printBoard();
-    Move getposition(Move new_move);
     Move input();
     void perform_move(Move step);
     int isGameOver();
-    bool done();
     void playerWins(char c);
     int legal_moves(Stack& moves);
     bool is_ok(Move step);
@@ -217,17 +215,12 @@ bool Board::is_ok(Move step)
 	    return false;}
     else return true;
 }
-Move Board:: getposition(Move new_move) {//gets the row and coloumn of the entered position
-    new_move.row = (new_move.pos - 1) / n;
-    new_move.col = (new_move.pos - 1) % n;
-    return new_move;
-}
 Move Board::input(){
-    Move step;
+    int pos;
     cout<<("Enter a number to place your symbol there: ");
-    cin>>step.pos;
-    step.pos=validinput(step.pos);//checks that the input is not a character
-    step= getposition(step);
+    cin>>pos;
+    pos=validinput(pos);//checks that the input is not a character
+    Move step(pos);
     if (!is_ok(step))//if input move is invalid it takes another input
     {
         cout<<("Invalid position\n");
@@ -261,7 +254,7 @@ int Board::isGameOver() {
         }
         if (gameOver == 1) {
             playerWins(values[j]);//sends X or O according to the winner
-            return gameOver;
+            return (gameOver|| moves_done==n*n);
         }
     }
     //Vertical Check
@@ -288,7 +281,7 @@ int Board::isGameOver() {
         }
         if (gameOver == 1) {
             playerWins(values[j]);
-            return gameOver;
+            return (gameOver|| moves_done==n*n);
         }
     }
     //leading Diagonal
@@ -299,21 +292,21 @@ int Board::isGameOver() {
             ptr = ptr->next;
         }
         values[i] = ptr->val;//puts the element of the diagonal in value
-        //checking if leading diagonal is equal
-        for (j = 0; j < n - 1; j++) {
-            if (values[j] == ' ' || values[j + 1] == ' ') {
-                gameOver = 0;
-                break;
-            }
-            if (values[j] != values[j + 1]) {
-                gameOver = 0;
-                break;
-            }
-        }
+    }
+      //checking if leading diagonal is equal
+      for (j = 0; j < n - 1; j++) {
+          if (values[j] == ' ' || values[j + 1] == ' ') {
+              gameOver = 0;
+              break;
+           }
+          if (values[j] != values[j + 1]) {
+              gameOver = 0;
+              break;
+          }
+      }
         if (gameOver == 1) {
             playerWins(values[j]);
-            return gameOver;
-        }
+            return (gameOver|| moves_done==n*n);
     }
     //other Diagonal
     for (i = n - 1; i >= 0; i--) {
@@ -323,30 +316,23 @@ int Board::isGameOver() {
             ptr = ptr->next;
         }
         values[n - i - 1] = ptr->val;
-        //checking if non-leading diagonal is equal
-        for (j = 0; j < n - 1; j++) {
-            if (values[j] == ' ' || values[j + 1] == ' ') {
-                gameOver = 0;
-                break;
-            }
-            if (values[j] != values[j + 1]) {
-                gameOver = 0;
-                break;
-            }
-        }
-        if (gameOver == 1) {
-            playerWins(values[j]);
-            return gameOver;
-        }
     }
-    return gameOver;
-}
-bool Board::done()
-/**Judging whether the game is over**/
-{
-    if(isGameOver())
-        return 1;//if there is a winner return true
-    return (moves_done == n*n );//if it's a draw return true
+     //checking if non-leading diagonal is equal
+     for (j = 0; j < n - 1; j++) {
+         if (values[j] == ' ' || values[j + 1] == ' ') {
+             gameOver = 0;
+             break;
+         }
+         if (values[j] != values[j + 1]) {
+             gameOver = 0;
+             break;
+         }
+     }
+     if (gameOver == 1) {
+         playerWins(values[j]);
+         return (gameOver||moves_done==n*n);
+        }
+    return (gameOver||moves_done==n*n);
 }
 //indicates which player wins
 void Board:: playerWins(char c) {
@@ -433,7 +419,7 @@ void assign(Board& new_game, Board game) {//copies board game in board new_game
 }
 int look_ahead(Board& game, int depth, Move& recommended) 
 {
-    if (game.done() || depth == 0) //if the game is over or depth(IQ) is zero return game evaluation to help computer decide the best move
+    if (game.isGameOver() || depth == 0) //if the game is over or depth(IQ) is zero return game evaluation to help computer decide the best move
         return game.evaluate(); 
     else
     {
@@ -487,7 +473,7 @@ int playing(int intel, int mode)
             game.perform_move(comp_move);
             system("cls");
             }
-        }while(!game.done());
+        }while(!game.isGameOver());
     system("cls");
     game.printBoard();
     return game.Winner;
