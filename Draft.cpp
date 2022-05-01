@@ -35,17 +35,17 @@ struct node {
 class Stack {
 public:
     Stack();
-    bool empty()const; //this function returns if the string is empty 
+    bool empty()const; //eturns 1 if empty 
     bool pop();
-    bool top(Move& item); //assigning a reference 
-    bool push(const Move& item);//assigining a reference 
+    bool top(Move& item); 
+    bool push(const Move& item);
 private:
     int count;
     Move entry[maxstack]; //it is an array named entry of type Move and size 100
 };
 Stack::Stack()
 {
-    count = 0;// count de hya el top bs bade2 men zero
+    count = 0; //like top
 }
 bool Stack::push(const Move& item)
 {
@@ -134,7 +134,7 @@ Board:: Board() {
     }
 }
 //prints the board
-void Board::printBoard() {//**ba3dein
+void Board::printBoard() {
     int i, j, k;
     struct node *ptr;
     for(k=0;k<n;k++){
@@ -237,7 +237,7 @@ Move Board::input(){
 int Board::isGameOver() {
     int gameOver, i, j;
     struct node *ptr;
-    char values[n];//*array to
+    char values[n];
     //Horizontal Check
     for (i = 0; i < n; i++)//to check each row
     {
@@ -259,7 +259,7 @@ int Board::isGameOver() {
             }
         }
         if (gameOver == 1) {
-            playerWins(values[j]);//sends X or O according the winner
+            playerWins(values[j]);//sends X or O according to the winner
             return gameOver;
         }
     }
@@ -315,7 +315,7 @@ int Board::isGameOver() {
         }
     }
     //other Diagonal
-    for (i = n - 1; i >= 0; i--) {//bada2t men akher row
+    for (i = n - 1; i >= 0; i--) {
         gameOver = 1;
         ptr = arr[n - i - 1];
         for (j = 0; j < i; j++) {
@@ -345,7 +345,7 @@ bool Board::done()
 {
     if(isGameOver())
         return 1;//if there is a winner return true
-    return (moves_done == n*n );//if its a draw return true
+    return (moves_done == n*n );//if it's a draw return true
 }
 //indicates which player wins
 void Board:: playerWins(char c) {
@@ -356,7 +356,7 @@ void Board:: playerWins(char c) {
         Winner= 2;
     }
 }
-void Board ::perform_move (Move step){// perform the move step on the board
+void Board ::perform_move (Move step){// performs the move step on the board
     struct node *ptr;
     ptr =arr[step.row];
     for(step.pos=0; step.pos!=step.col; step.pos++) {
@@ -462,14 +462,14 @@ int look_ahead(Board& game, int depth, Move& recommended)
 void player1info (){\\ fuction to get player1's info
     system("cls");
     cout<<"Player 1 Enter your name: \n";
-    cin>>player1;//string
+    cin>>player1;
     cout<<player1<< " your symbol is X\n\n\n";
 }
 int playing(int intel, int mode)
 {
     Board game;
     Move comp_move;
-    do{ // stay in loop untill all blocks are filled
+    do{ // stay in loop untill all blocks are filled or there's a winner
          system("cls");
         game.printBoard();
         if(game.pl % 2 != 0){//takes player 1's input and performs the move
@@ -493,14 +493,12 @@ int playing(int intel, int mode)
     return game.Winner;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
    int main() {
     //*Using system(), we can execute any command that can run on terminal if operating system allows.
             //*For example, we can call system(“dir”) on Windows and system(“ls”) to list contents of a directory.
     system("cls");//*system() is used to invoke an operating system command from a C/C++ program. clear screen
-    int ch, intel, win;    //n is size of matrix //m7tageen n change l varibales names de //d: for draw and it's returned from "input" function
+    int ch, intel, win;    //n is size of matrix 
    do{ //3 for quit
-        //sets the player win indicator to 0
         system("cls");
         //start menu
         cout<<" ---------------------------------------------------------------------\n";
