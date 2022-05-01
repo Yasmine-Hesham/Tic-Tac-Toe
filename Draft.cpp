@@ -546,7 +546,6 @@ int playing(int intel, int mode)
                 cout<<"Enter a valid choice";
         }
     }while(!(0<ch<=3));
-    system("cls");
     if(win==1){ 
         cout<<"\n\t\t"<<player1<<" Wins!!\n";
     }
