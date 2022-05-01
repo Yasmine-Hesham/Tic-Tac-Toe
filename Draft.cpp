@@ -489,12 +489,76 @@ int playing(int intel, int mode)
             }
         }while(!game.done());
     system("cls");
-    game.printBoard();//??
+    game.printBoard();
     return game.Winner;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-    int main()
-    {
-
+   int main() {
+    //*Using system(), we can execute any command that can run on terminal if operating system allows.
+            //*For example, we can call system(“dir”) on Windows and system(“ls”) to list contents of a directory.
+    system("cls");//*system() is used to invoke an operating system command from a C/C++ program. clear screen
+    int ch, intel, win;    //n is size of matrix //m7tageen n change l varibales names de //d: for draw and it's returned from "input" function
+   do{ //3 for quit
+        //sets the player win indicator to 0
+        system("cls");
+        //start menu
+        cout<<" ---------------------------------------------------------------------\n";
+        cout<<"|                                                                     |\n";
+        cout<<"|                             TIC TAC TOE                             |\n";
+        cout<<"|                                                                     |\n";
+        cout<<" ---------------------------------------------------------------------\n";
+        cout<<"|                                                                     |\n";
+        cout<<"|                            1. PLAY WITH TWO PLAYERS                 |\n";
+        cout<<"|                            2. PLAY WITH COMPUTER                    |\n";
+        cout<<"|                            3. QUIT                                  |\n";
+        cout<<"|                                                                     |\n";
+        cout<<" ---------------------------------------------------------------------\n";
+        cout<<"|  Select a choice:                                                   |\n";
+        cout<<" ---------------------------------------------------------------------\n";
+        cin>>ch;
+        switch(ch){//ch=1 or 2 if we'll play
+            case 1: //two players
+                player1info(player1);
+                cout<<"Player 2 Enter your name: \n";
+                cin>>player2;
+                cout<<player2<< " your symbol is O\n\n\n";
+                cout<<"Press any key to continue.\n";
+                getch();//*getch() also reads a single character from the keyboard.->conio.h
+                //the entered character is immediately returned without waiting for the enter key.
+                win=playing(0, ch); 
+                break;
+            case 2: //with computer
+                player1info(player1);
+                cout << "Please enter the computer's IQ:" << endl;
+                cin>>intel;
+                while (intel < 1 || intel>9) 
+                {
+                    cout << "IQ should be greater than or equal to 1, less than or equal to 9." << endl;
+                    cin >> intel;
+                }
+                system("cls");
+                win=playing(intel, ch);
+                break;
+            case 3: //quit
+                break;
+            default:
+                cout<<"Enter a valid choice";
+        }
+    }while(!(0<ch<=3));
+    system("cls");
+    if(win==1){ 
+        cout<<"\n\t\t"<<player1<<" Wins!!\n";
     }
+    else if(ch==1 && win==2){ 
+        cout<<"\n\t\t"<<player2<< " Wins!!\n";
+        }
+    else if (ch==2 && win==2){
+        cout<<"Computer wins"<<endl;
+            }
+    else if(win==0) {
+        cout<<"\n\t\tIt's a Draw!\n\n";
+        }
+
+    return 0;
+}
