@@ -66,7 +66,7 @@ bool Stack::pop()
 }
 bool Stack::top(Move& item)
 {
-    bool outcome = seccess;
+    bool outcome = success;
     if (count == 0)
         return underflow;
     else
@@ -407,8 +407,7 @@ int Board::legal_moves(Stack& moves)
         moves.pop(); //empty it first
     for (int i = 1; i < n*n+1; i++)
         {
-            Move can_play;
-            can_play(i);
+            Move can_play(i);
             if(is_ok(can_play))//checks if the move is feasible
                { moves.push(can_play); //and it's pushed in the stack moves
                 count++;}
@@ -459,7 +458,7 @@ int look_ahead(Board& game, int depth, Move& recommended)
         return best_value; //in the end it'll come back with the best decision 
     }
 }
-void player1info (){\\ fuction to get player1's info
+void player1info (){// fuction to get player1's info
     system("cls");
     cout<<"Player 1 Enter your name: \n";
     cin>>player1;
@@ -494,9 +493,7 @@ int playing(int intel, int mode)
 }
 
    int main() {
-    //*Using system(), we can execute any command that can run on terminal if operating system allows.
-            //*For example, we can call system(“dir”) on Windows and system(“ls”) to list contents of a directory.
-    system("cls");//*system() is used to invoke an operating system command from a C/C++ program. clear screen
+    system("cls");
     int ch, intel, win;    //n is size of matrix 
    do{ //3 for quit
         system("cls");
@@ -517,7 +514,7 @@ int playing(int intel, int mode)
         cin>>ch;
         switch(ch){//ch=1 or 2 if we'll play
             case 1: //two players
-                player1info(player1);
+                player1info();
                 cout<<"Player 2 Enter your name: \n";
                 cin>>player2;
                 cout<<player2<< " your symbol is O\n\n\n";
@@ -527,7 +524,7 @@ int playing(int intel, int mode)
                 win=playing(0, ch); 
                 break;
             case 2: //with computer
-                player1info(player1);
+                player1info();
                 cout << "Please enter the computer's IQ:" << endl;
                 cin>>intel;
                 while (intel < 1 || intel>9) 
