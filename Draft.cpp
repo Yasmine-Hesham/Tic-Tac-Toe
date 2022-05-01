@@ -5,6 +5,7 @@
 #include<direct.h>
 #include<io.h>
 #include<iostream>
+#include <ctime>
 using namespace std;
 #define maxstack 100 
 #define success true
@@ -495,7 +496,11 @@ int playing(int intel, int mode)
    int main() {
     system("cls");
     int ch, intel, win;    //n is size of matrix 
-   do{ //3 for quit
+    clock_t start;
+    clock_t end;
+    double timetaken;
+    start = clock();
+    do{ //3 for quit
         system("cls");
         //start menu
         cout<<" ---------------------------------------------------------------------\n";
@@ -553,6 +558,8 @@ int playing(int intel, int mode)
     else if(win==0) {
         cout<<"\n\t\tIt's a Draw!\n\n";
         }
-
+    end = clock();
+    timetaken = (end - start) / (double)CLOCKS_PER_SEC;
+    cout << "Elapsed Time: " << fixed << timetaken << "s" << endl;
     return 0;
 }
