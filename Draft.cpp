@@ -522,6 +522,7 @@ int playing(int intel, int mode)
                 {
                     cout << "IQ should be greater than or equal to 1, less than or equal to 9." << endl;
                     cin >> intel;
+		    intel=validinput(intel);
                 }
                 system("cls");
                 win=playing(intel, ch);
